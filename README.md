@@ -1,5 +1,7 @@
 # google-drive-clone
 
+![](./Screenshot.png)
+
 ## Project setup
 ```
 yarn install
