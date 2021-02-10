@@ -1,29 +1,102 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import store from '@/store/index';
 
-Vue.use(VueRouter)
+// Layouts
+import DefaultLayout from '@/layouts/Default';
+import AuthenticateLayout from '@/layouts/Authenticate';
+
+import Home from '@/views/Home';
+import Drive from '@/views/Drive/Index';
+
+Vue.use(VueRouter);
 
 const routes = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home
+    path: '',
+    component: DefaultLayout,
+    meta: {
+      requiresAuth: true,
+    },
+    children: [
+      {
+        path: '',
+        name: 'Home',
+        props: true,
+        component: Home,
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: () =>
+          import(/* webpackChunkName: "profile" */ '@/views/Profile.vue'),
+      },
+      {
+        path: 'drive/:folderId?',
+        name: 'Drive',
+        props: true,
+        component: () =>
+          import(/* webpackChunkName: "drive" */ '@/views/Drive/Index.vue'),
+      },
+    ],
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  }
-]
+    path: '',
+    component: AuthenticateLayout,
+    meta: {
+      requiresAuth: false,
+    },
+    children: [
+      {
+        path: '/login',
+        name: 'Login',
+        component: () =>
+          import(
+            /* webpackChunkName: "login" */ '@/views/Authenticate/Login.vue'
+          ),
+      },
+      {
+        path: '/signup',
+        name: 'SignUp',
+        component: () =>
+          import(
+            /* webpackChunkName: "signup" */ '@/views/Authenticate/SignUp.vue'
+          ),
+      },
+      {
+        path: '/forgot-password',
+        name: 'ForgotPassword',
+        component: () =>
+          import(
+            /* webpackChunkName: "forgot-password" */ '@/views/Authenticate/ForgotPassword.vue'
+          ),
+      },
+    ],
+  },
+];
 
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
-  routes
-})
+  routes,
+});
 
-export default router
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    // this route requires auth, check if logged in
+    // if not, redirect to login page.
+    if (!store.getters['auth/isLoggedIn']) {
+      next({
+        name: 'Login',
+        query: { redirect: to.fullPath },
+      });
+    } else {
+      next();
+    }
+    next();
+  } else {
+    next();
+  }
+});
+
+export default router;

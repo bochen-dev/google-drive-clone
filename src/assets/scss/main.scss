@@ -1,0 +1,23 @@
+@import '~@fortawesome/fontawesome-free/scss/fontawesome.scss';
+
+// Import Font Awesome 5 Free
+$fa-font-path: '~@fortawesome/fontawesome-free/webfonts';
+
+@import '~@fortawesome/fontawesome-free/scss/regular.scss';
+@import '~@fortawesome/fontawesome-free/scss/solid.scss';
+@import '~@fortawesome/fontawesome-free/scss/brands.scss';
+
+// Override Element UI's icon font
+[class^="fa"],
+[class*=" fa"] {
+  & + span {
+    margin-left: 5px;
+  }
+}
+
+// Custom styles
+.text-overflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
